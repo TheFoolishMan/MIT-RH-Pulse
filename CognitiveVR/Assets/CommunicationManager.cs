@@ -35,6 +35,11 @@ public class CommunicationManager : MonoBehaviour
             DebugLog("Getting stopped");
             singularityManager.sendMessage("stop-hr", pairedDevices[0]);
         }
+
+        if(Input.GetKeyDown(KeyCode.F))
+        {
+            TriggerState();
+        }
     }
 
     private void DebugLog(string v)
@@ -44,9 +49,10 @@ public class CommunicationManager : MonoBehaviour
 
     public void ConnectandGet()
     {
-        pairedDevices = singularityManager.GetPairedDevices();
-
-        if(pairedDevices.Count==0)
+        DebugLog("Connect start");
+        pairedDevices = singularityManager.GetPairedDevices(); 
+        DebugLog("Connect pair");
+        if (pairedDevices.Count==0)
         {
             DebugLog("No devices paired");
             return;
@@ -102,6 +108,6 @@ public class CommunicationManager : MonoBehaviour
 
     public void TriggerState()
     {
-        stateMachine.triggerNext();
+        stateMachine.triggerNextFromSwitch();
     }
 }
