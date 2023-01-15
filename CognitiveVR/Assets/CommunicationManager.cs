@@ -3,14 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using Sngty;
 using System;
+using TMPro;
 
 public class CommunicationManager : MonoBehaviour
 {
     public SingularityManager singularityManager;
+    public StateMachine stateMachine;
+
+    List<DeviceSignature> pairedDevices;
+
+    public TMP_Text messageText;
     // Start is called before the first frame update
     void Start()
     {
-        
+        ConnectandGet();
     }
 
     // Update is called once per frame
@@ -18,10 +24,16 @@ public class CommunicationManager : MonoBehaviour
     {
         
         //if(Input.GetKeyDown(KeyCode.L))
-        if(OVRInput.GetDown(OVRInput.Button.Any))
+        if(OVRInput.GetDown(OVRInput.Button.One))
         {
             DebugLog("Getting started");
-            ConnectandGet();
+            //ConnectandGet();
+            singularityManager.sendMessage("start-hr", pairedDevices[0]);
+        }
+        if (OVRInput.GetDown(OVRInput.Button.Two))
+        {
+            DebugLog("Getting stopped");
+            singularityManager.sendMessage("stop-hr", pairedDevices[0]);
         }
     }
 
@@ -32,7 +44,7 @@ public class CommunicationManager : MonoBehaviour
 
     public void ConnectandGet()
     {
-        List<DeviceSignature> pairedDevices = singularityManager.GetPairedDevices();
+        pairedDevices = singularityManager.GetPairedDevices();
 
         if(pairedDevices.Count==0)
         {
@@ -51,9 +63,10 @@ public class CommunicationManager : MonoBehaviour
 
         Debug.Log("Name "+pairedDevices[0].name);
 
-        singularityManager.sendMessage("connection", pairedDevices[0]);
+        
 
     }
+
 
     public void onConnected()
     {
@@ -68,6 +81,12 @@ public class CommunicationManager : MonoBehaviour
     public void onMessageRecieved(string message)
     {
         DebugLog("Message recieved from device: " + message);
+        Displaymessage(message);
+
+        if(message=="switch")
+        {
+            TriggerState();
+        }
     }
 
     public void onError(string errorMessage)
@@ -75,5 +94,14 @@ public class CommunicationManager : MonoBehaviour
         DebugLog("Error with Singularity: " + errorMessage);
     }
 
+    private void Displaymessage(string message)
+    {
+        messageText.text = (count++) + ": "+message;
+    }
+    int count = 0;
 
+    public void TriggerState()
+    {
+        stateMachine.triggerNext();
+    }
 }
